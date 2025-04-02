@@ -91,7 +91,7 @@ namespace LenixSO.Logger.Editor
         {
             StringBuilder sb = new();
 
-            sb.Append("using System;\n");
+            sb.Append("using UnityEngine;\n");
             sb.Append($"\nnamespace {nameof(LenixSO)}.{nameof(LenixSO.Logger)}");
             sb.Append("\n{");
             sb.Append("\n    public static class Logger");
@@ -108,7 +108,7 @@ namespace LenixSO.Logger.Editor
             sb.Append("\n            {");
             sb.Append("\n                logSettings = Editor.EditorUtilities.CreateScriptable<LoggerSettingsSO>(\"Resources\", \"LoggerSettings\");");
             sb.Append("\n                //Notify");
-            sb.Append("\n                Debug.LogError($\"{logSettings.name}\" created in the resources folder because it was not found\");");
+            sb.Append("\n                Debug.LogError($\"\\\"{logSettings.name}\\\" created in the resources folder because it was not found\");");
             sb.Append("\n            }");
             sb.Append("\n#endif");
             sb.Append("\n            logger = new(logSettings);");
@@ -119,11 +119,11 @@ namespace LenixSO.Logger.Editor
             sb.Append("\n        public static void Log(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Log);");
             sb.Append("\n        public static void LogWarning(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Warning);");
             sb.Append("\n        public static void LogError(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Error);");
+            sb.Append("\n    }");
             sb.Append("\n}");
 
             return sb.ToString();
         }
-
 
         #endregion
     }
