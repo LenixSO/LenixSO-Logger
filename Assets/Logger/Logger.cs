@@ -9,12 +9,12 @@ namespace LenixSO.Logger
         private static void Initialize()
         {
             ScenePresence scenePresence = new GameObject("Logger").AddComponent<ScenePresence>();
-            var logSettings = Resources.Load<LoggerSettingsSO>("LoggerSettings");
+            var logSettings = Resources.Load<LoggerSettingsSO>("LoggerSettingsSO");
 #if UNITY_EDITOR
             //verify logSettings presence
             if (logSettings == null)
             {
-                logSettings = Editor.EditorUtilities.CreateScriptable<LoggerSettingsSO>("Resources", "LoggerSettings");
+                logSettings = Editor.EditorUtilities.CreateScriptable<LoggerSettingsSO>("Resources", "LoggerSettingsSO");
                 //Notify
                 Debug.LogError($"\"{logSettings.name}\" created in the resources folder because it was not found");
             }

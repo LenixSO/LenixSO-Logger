@@ -15,9 +15,11 @@ namespace LenixSO.Logger.Editor
         {
             ImportEssentials();
         }
+        
         //names
         private const string flagEnumName = "LogFlags";
         private const string scriptableName = "LoggerSettingsSO";
+        private const string loggerName = "Logger";
         
         //paths
         private static string resourcesPath = Directory.GetCurrentDirectory() + "\\Assets\\Resources\\";
@@ -25,12 +27,30 @@ namespace LenixSO.Logger.Editor
         
         public static void ImportEssentials()
         {
-            EditorUtilities.VerifyPath(resourcesPath);
             EditorUtilities.VerifyPath(scriptsPath);
             CreateFlagScript();
-            CreateSettingsScriptable();
+            CreateSettingsScript();
             CreateLoggerManager();
+            AssetDatabase.Refresh();
+        }
+
+        [UnityEditor.Callbacks.DidReloadScripts]
+        private static void CreateSettingsScriptable()
+        {
+            bool essentialsExist = File.Exists(scriptsPath + $"{flagEnumName}.cs");
+            essentialsExist &= File.Exists(scriptsPath + $"{scriptableName}.cs");
+            essentialsExist &= File.Exists(scriptsPath + $"{loggerName}.cs");
+
+            if (!essentialsExist)
+            {
+                Debug.LogWarning($"Logger essentials not found, creating it.");
+                ImportEssentials();
+            }
+            if(Resources.Load(scriptableName) != null || !essentialsExist) return;
             
+            EditorUtilities.VerifyPath(resourcesPath);
+            EditorUtilities.CreateScriptable("Resources", $"{scriptableName}", scriptableName);
+            Debug.LogWarning($"\"{scriptableName}\" created in the resources folder because it was not found");
             AssetDatabase.Refresh();
         }
 
@@ -40,7 +60,7 @@ namespace LenixSO.Logger.Editor
             GenerateScript(FlagsScript(), path);
         }
 
-        private static void CreateSettingsScriptable()
+        private static void CreateSettingsScript()
         {
             string path = scriptsPath + $"{scriptableName}.cs";
             GenerateScript(ScriptableScript(), path);
@@ -48,7 +68,7 @@ namespace LenixSO.Logger.Editor
 
         private static void CreateLoggerManager()
         {
-            string path = scriptsPath + "Logger.cs";
+            string path = scriptsPath + $"{loggerName}.cs";
             GenerateScript(LoggerScript(), path);
         }
 
@@ -82,7 +102,7 @@ namespace LenixSO.Logger.Editor
             sb.Append("using System;\n");
             sb.Append($"\nnamespace {nameof(LenixSO)}.{nameof(LenixSO.Logger)}");
             sb.Append("\n{");
-            sb.Append($"\n    public class LoggerSettingsSO : LogSettingsSO<{flagEnumName}> {{ }}");
+            sb.Append($"\n    public class {scriptableName} : LogSettingsSO<{flagEnumName}> {{ }}");
             sb.Append("\n}");
 
             return sb.ToString();
@@ -101,12 +121,12 @@ namespace LenixSO.Logger.Editor
             sb.Append("\n        private static void Initialize()");
             sb.Append("\n        {");
             sb.Append("\n            ScenePresence scenePresence = new GameObject(\"Logger\").AddComponent<ScenePresence>();");
-            sb.Append("\n            var logSettings = Resources.Load<LoggerSettingsSO>(\"LoggerSettings\");");
+            sb.Append($"\n            var logSettings = Resources.Load<LoggerSettingsSO>(\"{scriptableName}\");");
             sb.Append("\n#if UNITY_EDITOR");
             sb.Append("\n            //verify logSettings presence");
             sb.Append("\n            if (logSettings == null)");
             sb.Append("\n            {");
-            sb.Append("\n                logSettings = Editor.EditorUtilities.CreateScriptable<LoggerSettingsSO>(\"Resources\", \"LoggerSettings\");");
+            sb.Append($"\n                logSettings = Editor.EditorUtilities.CreateScriptable<LoggerSettingsSO>(\"Resources\", \"{scriptableName}\");");
             sb.Append("\n                //Notify");
             sb.Append("\n                Debug.LogError($\"\\\"{logSettings.name}\\\" created in the resources folder because it was not found\");");
             sb.Append("\n            }");
@@ -126,10 +146,5 @@ namespace LenixSO.Logger.Editor
         }
 
         #endregion
-    }
-
-    public static class EditorUtility
-    {
-        
     }
 }

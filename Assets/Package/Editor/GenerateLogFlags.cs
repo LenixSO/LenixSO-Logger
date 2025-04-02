@@ -20,8 +20,7 @@ namespace LenixSO.Logger.Editor
 
         private void GenerateFlags()
         {
-            string flagName = target.GetType().GetField("activeFlags").FieldType.Name;;
-            Debug.Log(flagName);
+            string flagName = target.GetType().GetField("activeFlags").FieldType.Name;
             IEnumerable<string> found = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), 
                 $"{flagName}.cs", SearchOption.AllDirectories);
             for (int i = 0; i < found.Count();)
@@ -37,7 +36,6 @@ namespace LenixSO.Logger.Editor
         private string FlagsScript()
         {
             List<string> flags = (List<string>)target.GetType().GetField("flags")?.GetValue(target);
-            Debug.Log($"flags: {flags==null}");
             List<string> addedFlags = new(flags?.Count ?? 0);
             StringBuilder sb = new();
 
