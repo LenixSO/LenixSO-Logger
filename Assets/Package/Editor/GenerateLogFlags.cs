@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using UnityEngine;
 using UnityEditor;
 using System.Text;
 
-namespace LenixSO.Logger
+namespace LenixSO.Logger.Editor
 {
-    [CustomEditor(typeof(FlaggedLogSO))]
-    public class GenerateLogFlags : Editor
+    [CustomEditor(typeof(LogSettingsSO<>), editorForChildClasses:true)]
+    public class GenerateLogFlags : UnityEditor.Editor
     {
         public override void OnInspectorGUI()
         {
@@ -19,7 +20,10 @@ namespace LenixSO.Logger
 
         private void GenerateFlags()
         {
-            IEnumerable<string> found = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), "LogFlags.cs", SearchOption.AllDirectories);
+            string flagName = target.GetType().GetField("activeFlags").FieldType.Name;;
+            Debug.Log(flagName);
+            IEnumerable<string> found = Directory.EnumerateFiles(Directory.GetCurrentDirectory(), 
+                $"{flagName}.cs", SearchOption.AllDirectories);
             for (int i = 0; i < found.Count();)
             {
                 string filePath = found.ElementAt(i);
@@ -32,9 +36,9 @@ namespace LenixSO.Logger
 
         private string FlagsScript()
         {
-            FlaggedLogSO logFlags = (FlaggedLogSO)target;
-            List<string> flags = logFlags.flags;
-            List<string> addedFlags = new(flags.Count);
+            List<string> flags = (List<string>)target.GetType().GetField("flags")?.GetValue(target);
+            Debug.Log($"flags: {flags==null}");
+            List<string> addedFlags = new(flags?.Count ?? 0);
             StringBuilder sb = new();
 
             sb.Append("using System;\n");
