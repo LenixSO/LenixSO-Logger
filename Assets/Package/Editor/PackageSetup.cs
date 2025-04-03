@@ -43,8 +43,7 @@ namespace LenixSO.Logger.Editor
 
             if (!essentialsExist)
             {
-                Debug.LogWarning($"Logger essentials not found, creating it.");
-                ImportEssentials();
+                Debug.LogWarning($"Logger essentials not found, Please import them through Logger/Import Essentials.");
             }
             if(Resources.Load(scriptableName) != null || !essentialsExist) return;
             
