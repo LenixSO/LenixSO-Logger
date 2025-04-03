@@ -35,7 +35,7 @@ namespace LenixSO.Logger.Editor
         }
 
         [UnityEditor.Callbacks.DidReloadScripts]
-        private static void CreateSettingsScriptable()
+        private static void VerifyEssentialScripts()
         {
             bool essentialsExist = File.Exists(scriptsPath + $"{flagEnumName}.cs");
             essentialsExist &= File.Exists(scriptsPath + $"{scriptableName}.cs");
@@ -45,12 +45,6 @@ namespace LenixSO.Logger.Editor
             {
                 Debug.LogWarning($"Logger essentials not found, Please import them through Logger/Import Essentials.");
             }
-            if(Resources.Load(scriptableName) != null || !essentialsExist) return;
-            
-            EditorUtilities.VerifyPath(resourcesPath);
-            EditorUtilities.CreateScriptable("Resources", $"{scriptableName}", scriptableName);
-            Debug.LogWarning($"\"{scriptableName}\" created in the resources folder because it was not found");
-            AssetDatabase.Refresh();
         }
 
         private static void CreateFlagScript()
