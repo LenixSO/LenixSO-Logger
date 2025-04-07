@@ -2,7 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 using UnityEngine;
 using UnityEditor;
 
@@ -27,19 +29,21 @@ namespace LenixSO.Logger.Editor
         
         public static void ImportEssentials()
         {
-            EditorUtilities.VerifyPath(scriptsPath);
-            CreateFlagScript();
-            CreateSettingsScript();
-            CreateLoggerManager();
+            string path = EssentialsPath();
+            EditorUtilities.VerifyPath(path);
+            CreateFlagScript(path);
+            CreateSettingsScript(path);
+            CreateLoggerManager(path);
             AssetDatabase.Refresh();
         }
 
         [UnityEditor.Callbacks.DidReloadScripts]
         private static void VerifyEssentialScripts()
         {
-            bool essentialsExist = File.Exists(scriptsPath + $"{flagEnumName}.cs");
-            essentialsExist &= File.Exists(scriptsPath + $"{scriptableName}.cs");
-            essentialsExist &= File.Exists(scriptsPath + $"{loggerName}.cs");
+            string path = EssentialsPath();
+            bool essentialsExist = File.Exists(path + $"{flagEnumName}.cs");
+            essentialsExist &= File.Exists(path + $"{scriptableName}.cs");
+            essentialsExist &= File.Exists(path + $"{loggerName}.cs");
 
             if (!essentialsExist)
             {
@@ -47,21 +51,43 @@ namespace LenixSO.Logger.Editor
             }
         }
 
-        private static void CreateFlagScript()
+        private static string EssentialsPath()
         {
-            string path = scriptsPath + $"{flagEnumName}.cs";
+            if (Directory.Exists(scriptsPath)) return scriptsPath;
+            
+            IEnumerator<string> loggerDirectory = Directory.EnumerateDirectories(Directory.GetCurrentDirectory(),
+                    "Logger", SearchOption.AllDirectories).GetEnumerator();
+            while (loggerDirectory.MoveNext())
+            {
+                string path = loggerDirectory.Current + "\\";
+                bool essentialsExist = File.Exists(path + $"{flagEnumName}.cs");
+                essentialsExist &= File.Exists(path + $"{scriptableName}.cs");
+                essentialsExist &= File.Exists(path + $"{loggerName}.cs");
+                if (!essentialsExist) continue;
+                
+                loggerDirectory.Dispose();
+                return path;
+            }
+            
+            loggerDirectory.Dispose();
+            return scriptsPath;
+        }
+
+        private static void CreateFlagScript(string scriptPath = null)
+        {
+            string path = (scriptPath ?? scriptsPath) + $"{flagEnumName}.cs";
             GenerateScript(FlagsScript(), path);
         }
 
-        private static void CreateSettingsScript()
+        private static void CreateSettingsScript(string scriptPath = null)
         {
-            string path = scriptsPath + $"{scriptableName}.cs";
+            string path = (scriptPath ?? scriptsPath) + $"{scriptableName}.cs";
             GenerateScript(ScriptableScript(), path);
         }
 
-        private static void CreateLoggerManager()
+        private static void CreateLoggerManager(string scriptPath = null)
         {
-            string path = scriptsPath + $"{loggerName}.cs";
+            string path = (scriptPath ?? scriptsPath) + $"{loggerName}.cs";
             GenerateScript(LoggerScript(), path);
         }
 
