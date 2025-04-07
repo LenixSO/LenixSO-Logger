@@ -1,0 +1,16 @@
+{
+    "name": "LenixSO.Logger.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d12f380de7a546e4ba458b422df20eb5"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
