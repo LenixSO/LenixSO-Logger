@@ -45,6 +45,13 @@ namespace LenixSO.Logger.Editor
             {
                 Debug.LogWarning($"Logger essentials not found, Please import them through Logger/Import Essentials.");
             }
+            
+            if(Resources.Load(scriptableName) != null || !essentialsExist) return;
+            
+            EditorUtilities.VerifyPath(resourcesPath);
+            EditorUtilities.CreateScriptable("Resources", $"{scriptableName}", scriptableName);
+            Debug.LogWarning($"\"{scriptableName}\" created in the resources folder because it was not found");
+            AssetDatabase.Refresh();
         }
 
         private static string EssentialsPath()
@@ -114,9 +121,10 @@ namespace LenixSO.Logger.Editor
         {
             StringBuilder sb = new();
 
-            sb.Append("using System;\n");
+            sb.Append("using UnityEngine;\n");
             sb.Append($"\nnamespace {nameof(LenixSO)}.{nameof(LenixSO.Logger)}");
             sb.Append("\n{");
+            sb.Append("\n    [CreateAssetMenu(menuName = \"LoggerSettings\", fileName = \"LoggerSettingsSO\")]");
             sb.Append($"\n    public class {scriptableName} : LogSettingsSO<{flagEnumName}> {{ }}");
             sb.Append("\n}");
 
