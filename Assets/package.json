@@ -1,0 +1,13 @@
+{
+  "name": "com.lenix.logger",
+  "version": "0.1.5",
+  "displayName": "LenixSO Logger",
+  "description": "A logger filter for unity",
+  "unity": "2022.3",
+  "keywords": [],
+  "author": {
+    "name": "Leniton",
+    "email": ""
+  },
+  "dependencies": {}
+}
