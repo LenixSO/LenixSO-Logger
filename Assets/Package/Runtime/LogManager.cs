@@ -124,14 +124,13 @@ namespace LenixSO.Logger
         public LogManager(LogSettingsSO<T> settings)
         {
             logSettings = settings;
+            LogCashe = new();
+            cashedFlags = GetFlags();
+            activeFlags = logSettings.activeFlags;
         }
 
         public void Initialize()
         {
-            LogCashe = new();
-            cashedFlags = GetFlags();
-            activeFlags = logSettings.activeFlags;
-
             logSettings.onFlagsChanged += UpdateLogs;
         }
         public void Reset()
