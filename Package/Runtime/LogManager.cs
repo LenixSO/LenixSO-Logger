@@ -13,6 +13,8 @@ namespace LenixSO.Logger
         {
             if (FlagUtilities.ContainsAnyBits((int)(object)activeFlags, (int)(object)flag) || (int)(object)flag == 0)
             {
+                //stacktrace it
+                message = StackTraceMessage(message, type);
                 LogMessage();
             }
             else
@@ -95,7 +97,10 @@ namespace LenixSO.Logger
                         string line = link.Substring(colonId + 1, link.Length - colonId - 1);
 
                         //skip if is ignoring logger trace
-                        if (link.Contains("Logger.cs") && logSettings.ignoreLoggerOnStackTrace) continue;
+                        if (logSettings.ignoreLoggerOnStackTrace)
+                        {
+                            if (link.Contains($"LogManager.cs") || link.Contains($"Logger.cs")) continue;
+                        }
 
                         stackTrace.Append("\n");
                         stackTrace.Append(traceLines[i]
@@ -105,7 +110,7 @@ namespace LenixSO.Logger
 
                 sb.Append(stackTrace);
 
-                sb.Append("\n\nOriginal stack:");
+                sb.Append("\n.\n.\n.\n<color=orange>Original stackTrace:</color>");
             }
 
             return sb.ToString();
@@ -124,14 +129,13 @@ namespace LenixSO.Logger
         public LogManager(LogSettingsSO<T> settings)
         {
             logSettings = settings;
+            LogCashe = new();
+            cashedFlags = GetFlags();
+            activeFlags = logSettings.activeFlags;
         }
 
         public void Initialize()
         {
-            LogCashe = new();
-            cashedFlags = GetFlags();
-            activeFlags = logSettings.activeFlags;
-
             logSettings.onFlagsChanged += UpdateLogs;
         }
         public void Reset()
