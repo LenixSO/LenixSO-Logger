@@ -1,6 +1,6 @@
 {
   "name": "com.lenix.logger",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "displayName": "LenixSO Logger",
   "description": "A logger filter for unity",
   "unity": "2022.3",
