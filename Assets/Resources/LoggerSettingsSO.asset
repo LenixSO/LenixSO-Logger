@@ -12,10 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e52421a6d9beeab4cb00117a0c79bd8a, type: 3}
   m_Name: LoggerSettingsSO
   m_EditorClassIdentifier: 
-  restoreLogsOnChange: 1
-  ignoreLoggerOnStackTrace: 1
-  activeFlags: 1
+  restoreLogsOnChange: 0
+  ignoreLoggerOnStackTrace: 0
+  activeFlags: 0
   flags:
   - Flag1
-  - Flag2
-  - Flag3
