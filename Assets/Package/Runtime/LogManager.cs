@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -156,21 +157,18 @@ namespace LenixSO.Logger
             {
                 int atIndex = traceLines[i].IndexOf("(at ", StringComparison.Ordinal);
                 int endIndex = traceLines[i].LastIndexOf(')');
-                if (atIndex >= 0 && endIndex > atIndex)
-                {
-                    atIndex += 4;
-                    string link = traceLines[i]
-                        .Substring(atIndex, endIndex - atIndex);
-                    int colonId = link.IndexOf(':');
-                    string script = link.Substring(0, colonId);
-                    string line = link.Substring(colonId + 1, link.Length - colonId - 1);
+                if (atIndex < 0 || endIndex <= atIndex) continue;
+                atIndex += 4;
+                string link = traceLines[i]
+                    .Substring(atIndex, endIndex - atIndex);
+                int colonId = link.IndexOf(':');
+                string script = link.Substring(0, colonId);
+                string line = link.Substring(colonId + 1, link.Length - colonId - 1);
+                if (ignoredTrace.Any(l => script.Contains(l))) continue;
 
-                    if(ignoredTrace.Contains(link)) continue;
-
-                    stackTrace.Append("\n");
-                    stackTrace.Append(traceLines[i]
-                        .Replace(link, $"<a href=\"{script}\" line=\"{line}\">{link}</a>"));
-                }
+                stackTrace.Append("\n");
+                stackTrace.Append(traceLines[i]
+                    .Replace(link, $"<a href=\"{script}\" line=\"{line}\">{link}</a>"));
             }
 
             sb.Append(stackTrace);
