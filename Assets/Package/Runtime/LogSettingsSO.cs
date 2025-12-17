@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 namespace LenixSO.Logger
@@ -17,5 +18,22 @@ namespace LenixSO.Logger
         public event Action onFlagsChanged;
 
         private void OnValidate() => onFlagsChanged?.Invoke();
+
+        private void Reset()
+        {
+            restoreLogsOnChange = true;
+            ignoreLoggerOnStackTrace = true;
+            var values = Enum.GetNames(typeof(T));
+            var parseValue = new StringBuilder();
+            flags = new(values.Length);
+            for (int i = 0; i < values.Length; i++)
+            {
+                flags.Add(values[i]);
+                if (i > 0) parseValue.Append(", ");
+                parseValue.Append(values[i]);
+            }
+
+            activeFlags = (T)Enum.Parse(typeof(T), parseValue.ToString());
+        }
     }
 }
