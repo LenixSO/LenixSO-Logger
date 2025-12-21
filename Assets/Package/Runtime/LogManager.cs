@@ -9,7 +9,8 @@ namespace LenixSO.Logger
 {
     public class LogManager<T> where T : Enum
     {
-        private Dictionary<T, Action> LogCashe;
+        private Dictionary<T, Action> logCache;
+        private List<Action> defaultLogCache;
         private LogSettingsSO<T> logSettings;
 
         private T activeFlags;
@@ -21,7 +22,8 @@ namespace LenixSO.Logger
         public LogManager(LogSettingsSO<T> settings)
         {
             logSettings = settings;
-            LogCashe = new();
+            logCache = new();
+            defaultLogCache = new();
             cashedFlags = GetFlags();
             activeFlags = logSettings.activeFlags;
         }
@@ -30,6 +32,7 @@ namespace LenixSO.Logger
         {
             logHandler = new LogHandler(Debug.unityLogger.logHandler);
             Debug.unityLogger.logHandler = logHandler;
+            logHandler.onLog += HandleDefaultLogs;
             logSettings.onFlagsChanged += UpdateLogs;
         }
 
@@ -67,6 +70,13 @@ namespace LenixSO.Logger
 
             //Debug added flags
             if (!logSettings.restoreLogsOnChange) return;
+
+            //restore default logs
+            for (int i = 0; i < defaultLogCache.Count; i++)
+                defaultLogCache[i]?.Invoke();
+            defaultLogCache.Clear();
+
+            //restore flagged logs
             for (int i = 0; i < addedFlags.Count; i++)
             {
                 int[] splitFlags = FlagUtilities.SeparateBits((int)(object)addedFlags[i]);
@@ -74,9 +84,9 @@ namespace LenixSO.Logger
                 {
                     T currentFlag = (T)(object)splitFlags[j];
 
-                    if (!LogCashe.ContainsKey(currentFlag)) continue;
-                    LogCashe[currentFlag]?.Invoke();
-                    LogCashe.Remove(currentFlag);
+                    if (!logCache.ContainsKey(currentFlag)) continue;
+                    logCache[currentFlag]?.Invoke();
+                    logCache.Remove(currentFlag);
                 }
             }
         }
@@ -90,25 +100,19 @@ namespace LenixSO.Logger
                 ignoredStacks.Add("Logger.cs");
                 ignoredStacks.Add("LogManager.cs");
             }
-            
-            if (FlagUtilities.ContainsAnyBits((int)(object)activeFlags, (int)(object)flag) || (int)(object)flag == 0)
-            {
-                //stacktrace it
-                message = StackTraceMessage(message, type,ignoredStacks);
-                LogMessage();
-            }
-            else
+            //custom stacktrace
+            message = StackTraceMessage(message, type, ignoredStacks);
+
+            if ((int)(object)flag != 0 && !FlagUtilities.ContainsAnyBits((int)(object)activeFlags, (int)(object)flag))
             {
                 //split flags
                 int[] flags = FlagUtilities.SeparateBits((int)(object)flag);
-                //stacktrace it
-                message = StackTraceMessage(message, type,ignoredStacks);
                 for (int i = 0; i < flags.Length; i++)
                 {
                     T currentFlag = (T)(object)flags[i];
 
-                    LogCashe.TryAdd(currentFlag, null);
-                    LogCashe[currentFlag] += CacheLog;
+                    logCache.TryAdd(currentFlag, null);
+                    logCache[currentFlag] += CacheLog;
                 }
 
                 void CacheLog()
@@ -121,11 +125,12 @@ namespace LenixSO.Logger
                     {
                         T currentFlag = (T)(object)flags[i];
 
-                        if (LogCashe.ContainsKey(currentFlag))
-                            LogCashe[currentFlag] -= CacheLog;
+                        if (logCache.ContainsKey(currentFlag))
+                            logCache[currentFlag] -= CacheLog;
                     }
                 }
             }
+            else LogMessage();
 
             return;
 
@@ -133,6 +138,23 @@ namespace LenixSO.Logger
             {
                 debugHandler.LogFormat(type, null, message);
             }
+        }
+
+        private void HandleDefaultLogs(LogType type, Object context, string format, params object[] args)
+        {
+            List<string> ignoredStacks = new();
+            //skip if is ignoring logger trace
+            if (logSettings.ignoreLoggerOnStackTrace)
+            {
+                ignoredStacks.Add("Logger.cs");
+                ignoredStacks.Add("LogManager.cs");
+            }
+
+            string message = string.Format(format, args);
+            //custom stacktrace
+            message = StackTraceMessage(message, type, ignoredStacks);
+            if (logSettings.supressRegularLogs) defaultLogCache.Add(() => debugHandler.LogFormat(type, context, message));
+            else debugHandler.LogFormat(type, context, message);
         }
 
         private static string StackTraceMessage(string message, LogType type = LogType.Log, List<string> ignoredTrace = null)
@@ -191,6 +213,10 @@ namespace LenixSO.Logger
     public class LogHandler : ILogHandler
     {
         public ILogHandler handler { get; }
+
+        public delegate void LogEvent(LogType type, Object context, string format, params object[] args);
+
+        public event LogEvent onLog;
         
         public LogHandler(ILogHandler handler)
         {
@@ -198,13 +224,7 @@ namespace LenixSO.Logger
         }
         public void LogFormat(LogType logType, Object context, string format, params object[] args)
         {
-            StringBuilder sb = new();
-            for (int i = 0; i < args.Length; i++)
-            {
-                sb.Append($"{args[i]}\n");
-            }
-            handler.LogFormat(logType,context,format,$"handler: {logType} | {context} | {format} | {sb}");
-            handler.LogFormat(logType, context, format, args);
+            onLog?.Invoke(logType, context, format, args);
         }
 
         public void LogException(Exception exception, Object context)

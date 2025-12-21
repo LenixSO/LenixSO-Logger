@@ -11,6 +11,8 @@ namespace LenixSO.Logger
         public bool restoreLogsOnChange;
         [Tooltip("Logger doesnt show up on stackTrace")]
         public bool ignoreLoggerOnStackTrace;
+        [Tooltip("Regular Debug.Log messages doesnt show up")]
+        public bool supressRegularLogs;
 
         [Space] public T activeFlags;
         public List<string> flags = new() { "Flag1" };
@@ -23,6 +25,7 @@ namespace LenixSO.Logger
         {
             restoreLogsOnChange = true;
             ignoreLoggerOnStackTrace = true;
+            supressRegularLogs = false;
             var values = Enum.GetNames(typeof(T));
             var parseValue = new StringBuilder();
             flags = new(values.Length);
