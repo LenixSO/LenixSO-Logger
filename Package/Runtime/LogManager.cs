@@ -136,7 +136,7 @@ namespace LenixSO.Logger
 
             void LogMessage()
             {
-                debugHandler.LogFormat(type, null, message);
+                debugHandler.LogFormat(type, null, "{0}", message);
             }
         }
 
@@ -154,7 +154,7 @@ namespace LenixSO.Logger
             //custom stacktrace
             message = StackTraceMessage(message, type, ignoredStacks);
             if (logSettings.supressRegularLogs) defaultLogCache.Add(() => debugHandler.LogFormat(type, context, message));
-            else debugHandler.LogFormat(type, context, message);
+            else debugHandler.LogFormat(type, context, "{0}", message);
         }
 
         private static string StackTraceMessage(string message, LogType type = LogType.Log, List<string> ignoredTrace = null)
