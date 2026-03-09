@@ -17,7 +17,14 @@ namespace LenixSO.Logger
         private List<T> cashedFlags;
 
         private LogHandler logHandler;
-        private ILogHandler debugHandler => logHandler.handler;
+        private ILogHandler debugHandler
+        {
+            get
+            {
+                if(logHandler == null) Initialize();
+                return logHandler.handler;
+            }
+        }
 
         public LogManager(LogSettingsSO<T> settings)
         {
@@ -30,6 +37,7 @@ namespace LenixSO.Logger
 
         public void Initialize()
         {
+            if(logHandler != null) return;
             logHandler = new LogHandler(Debug.unityLogger.logHandler);
             Debug.unityLogger.logHandler = logHandler;
             logHandler.onLog += HandleDefaultLogs;
@@ -136,7 +144,7 @@ namespace LenixSO.Logger
 
             void LogMessage()
             {
-                debugHandler.LogFormat(type, null, "{0}", message);
+                debugHandler.LogFormat(type, null,"{0}", message);
             }
         }
 
@@ -154,7 +162,7 @@ namespace LenixSO.Logger
             //custom stacktrace
             message = StackTraceMessage(message, type, ignoredStacks);
             if (logSettings.supressRegularLogs) defaultLogCache.Add(() => debugHandler.LogFormat(type, context, message));
-            else debugHandler.LogFormat(type, context, "{0}", message);
+            else debugHandler.LogFormat(type, context,"{0}", message);
         }
 
         private static string StackTraceMessage(string message, LogType type = LogType.Log, List<string> ignoredTrace = null)
