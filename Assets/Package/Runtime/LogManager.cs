@@ -17,7 +17,14 @@ namespace LenixSO.Logger
         private List<T> cashedFlags;
 
         private LogHandler logHandler;
-        private ILogHandler debugHandler => logHandler.handler;
+        private ILogHandler debugHandler
+        {
+            get
+            {
+                if(logHandler == null) Initialize();
+                return logHandler.handler;
+            }
+        }
 
         public LogManager(LogSettingsSO<T> settings)
         {
@@ -30,6 +37,7 @@ namespace LenixSO.Logger
 
         public void Initialize()
         {
+            if(logHandler != null) return;
             logHandler = new LogHandler(Debug.unityLogger.logHandler);
             Debug.unityLogger.logHandler = logHandler;
             logHandler.onLog += HandleDefaultLogs;
