@@ -21,7 +21,7 @@ namespace LenixSO.Logger
         {
             get
             {
-                if(logHandler == null) Initialize();
+                if (logHandler == null) Initialize();
                 return logHandler.handler;
             }
         }
@@ -37,7 +37,7 @@ namespace LenixSO.Logger
 
         public void Initialize()
         {
-            if(logHandler != null) return;
+            if (logHandler != null) return;
             logHandler = new LogHandler(Debug.unityLogger.logHandler);
             Debug.unityLogger.logHandler = logHandler;
             logHandler.onLog += HandleDefaultLogs;
@@ -113,6 +113,7 @@ namespace LenixSO.Logger
 
             if ((int)(object)flag != 0 && !FlagUtilities.ContainsAnyBits((int)(object)activeFlags, (int)(object)flag))
             {
+#if UNITY_EDITOR
                 //split flags
                 int[] flags = FlagUtilities.SeparateBits((int)(object)flag);
                 for (int i = 0; i < flags.Length; i++)
@@ -137,6 +138,7 @@ namespace LenixSO.Logger
                             logCache[currentFlag] -= CacheLog;
                     }
                 }
+#endif
             }
             else LogMessage();
 
@@ -161,7 +163,12 @@ namespace LenixSO.Logger
             string message = string.Format(format, args);
             //custom stacktrace
             message = StackTraceMessage(message, type, ignoredStacks);
-            if (logSettings.supressRegularLogs) defaultLogCache.Add(() => debugHandler.LogFormat(type, context, message));
+            if (logSettings.supressRegularLogs)
+            {
+#if UNITY_EDITOR
+                defaultLogCache.Add(() => debugHandler.LogFormat(type, context, message));
+#endif
+            }
             else debugHandler.LogFormat(type, context,"{0}", message);
         }
 
