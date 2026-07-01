@@ -101,10 +101,11 @@ namespace LenixSO.Logger
 
         public void GenerateLog(string message, T flag, LogType type)
         {
-            List<string> ignoredStacks = new();
+            List<string> ignoredStacks = null;
             //skip if is ignoring logger trace
             if (logSettings.ignoreLoggerOnStackTrace)
             {
+                ignoredStacks = new(2);
                 ignoredStacks.Add("Logger.cs");
                 ignoredStacks.Add("LogManager.cs");
             }
@@ -152,10 +153,11 @@ namespace LenixSO.Logger
 
         private void HandleDefaultLogs(LogType type, Object context, string format, params object[] args)
         {
-            List<string> ignoredStacks = new();
+            List<string> ignoredStacks = null;
             //skip if is ignoring logger trace
             if (logSettings.ignoreLoggerOnStackTrace)
             {
+                ignoredStacks = new(2);
                 ignoredStacks.Add("Logger.cs");
                 ignoredStacks.Add("LogManager.cs");
             }
@@ -175,8 +177,7 @@ namespace LenixSO.Logger
         private static string StackTraceMessage(string message, LogType type = LogType.Log, List<string> ignoredTrace = null)
         {
             StringBuilder sb = new(message);
-            if (Application.GetStackTraceLogType(type) == StackTraceLogType.None) return sb.ToString();
-            ignoredTrace ??= new();
+            if (Application.GetStackTraceLogType(type) == StackTraceLogType.None || ignoredTrace is null) return sb.ToString();
             string stackTraceRaw = StackTraceUtility.ExtractStackTrace();
             stackTraceRaw = stackTraceRaw.Remove(0, stackTraceRaw.IndexOf('\n') + 1);
 
