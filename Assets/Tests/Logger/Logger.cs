@@ -24,8 +24,8 @@ namespace LenixSO.Logger
             scenePresence.OnDestroyed += logger.Reset;
             Object.DontDestroyOnLoad(scenePresence.gameObject);
         }
-        public static void Log(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Log);
-        public static void LogWarning(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Warning);
-        public static void LogError(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Error);
+        public static void Log(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Log);
+        public static void LogWarning(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Warning);
+        public static void LogError(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Error);
     }
 }
