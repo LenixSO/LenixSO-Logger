@@ -159,9 +159,9 @@ namespace LenixSO.Logger.Editor
             sb.Append("\n            scenePresence.OnDestroyed += logger.Reset;");
             sb.Append("\n            Object.DontDestroyOnLoad(scenePresence.gameObject);");
             sb.Append("\n        }");
-            sb.Append("\n        public static void Log(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Log);");
-            sb.Append("\n        public static void LogWarning(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Warning);");
-            sb.Append("\n        public static void LogError(string message, LogFlags flag = 0) => logger.GenerateLog(message, flag, LogType.Error);");
+            sb.Append("\n        public static void Log(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Log);");
+            sb.Append("\n        public static void LogWarning(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Warning);");
+            sb.Append("\n        public static void LogError(object message, LogFlags flag = 0) => logger.GenerateLog(message.ToString(), flag, LogType.Error);");
             sb.Append("\n    }");
             sb.Append("\n}");
 
